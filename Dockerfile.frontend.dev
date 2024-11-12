@@ -1,0 +1,17 @@
+FROM node:22-alpine
+
+RUN npm install -g pnpm
+
+WORKDIR /app
+
+COPY frontend/ ./
+
+RUN pnpm install
+
+ARG PORT=3001
+
+ENV PORT=${PORT}
+
+EXPOSE ${PORT}
+
+CMD [ "pnpm", "dev" ]

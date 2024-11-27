@@ -1,3 +1,5 @@
 #!/bin/bash
 
-docker compose -f docker-compose.yml up --build -w
+set -e
+./run-dev-backend.sh &
+./run-dev-frontend.sh

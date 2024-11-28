@@ -40,20 +40,17 @@ export class AuthService {
       },
     });
     if (!user) {
-      // TODO: should do something like a global error handling here
       throw new UnprocessableEntityException('Not found user');
     }
     const userCredential = await this.userCredentialsService.findByUserId(
       user.id,
     );
     if (!userCredential) {
-      // TODO: should do something like a global error handling here
       throw new UnprocessableEntityException('Not found user credential');
     }
     const isMatch = await bcrypt.compare(password, userCredential.password);
 
     if (!isMatch) {
-      // TODO: should do something like a global error handling here
       throw new UnprocessableEntityException('Password not match');
     }
     const accessToken = await this.jwtService.signAsync({

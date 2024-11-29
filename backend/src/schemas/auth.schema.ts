@@ -14,8 +14,6 @@ export const authRegisterBodySchema = z.object({
     }),
 });
 
-export type AuthRegisterBodySchema = z.infer<typeof authRegisterBodySchema>;
-
 export class AuthRegisterBodyDto {
   @ApiProperty({
     example: 'test',
@@ -55,8 +53,6 @@ export const authLoginBodySchema = authRegisterBodySchema.pick({
   password: true,
 });
 
-export type AuthLoginBodySchema = z.infer<typeof authLoginBodySchema>;
-
 export class AuthLoginBodyDto {
   @ApiProperty({
     example: 'test@gmail.com',
@@ -69,7 +65,11 @@ export class AuthLoginBodyDto {
   password: string;
 }
 
-export class AuthLoginResponse {
+export const authRefreshBodySchema = z.object({
+  refreshToken: z.string(),
+});
+
+export class AuthRefreshBodyDto {
   @ApiProperty()
-  accessToken: string;
+  refreshToken: string;
 }

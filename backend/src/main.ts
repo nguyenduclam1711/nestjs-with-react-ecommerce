@@ -8,6 +8,7 @@ async function bootstrap() {
 
   // Setup swagger
   const config = new DocumentBuilder()
+    .addBearerAuth()
     .setTitle('Nestjs with react ecommerce')
     .setDescription('The Nestjs with react ecommerce API description')
     .build();

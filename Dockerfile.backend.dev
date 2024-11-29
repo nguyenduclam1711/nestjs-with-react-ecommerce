@@ -5,7 +5,7 @@ WORKDIR /app
 
 COPY backend/package*.json backend/pnpm-lock.yaml ./
 
-RUN npm install -g pnpm node-gyp
+RUN npm install -g pnpm
 
 RUN pnpm install
 

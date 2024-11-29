@@ -2,11 +2,14 @@ import { Body, Controller, Post, UsePipes } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ZodValidationPipe } from 'src/common/pipes/zod-validation.pipe';
 import {
-  AuthLoginBodySchema,
+  AuthLoginBodyDto,
   authLoginBodySchema,
-  AuthRegisterBodySchema,
+  AuthLoginResponse,
+  AuthRegisterBodyDto,
   authRegisterBodySchema,
+  AuthRegisterResponse,
 } from 'src/schemas/auth.schema';
+import { ApiOkResponse } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -14,9 +17,12 @@ export class AuthController {
 
   @Post('/register')
   @UsePipes(new ZodValidationPipe(authRegisterBodySchema))
+  @ApiOkResponse({
+    type: AuthRegisterResponse,
+  })
   async register(
     @Body()
-    body: AuthRegisterBodySchema,
+    body: AuthRegisterBodyDto,
   ) {
     const { password, name, email } = body;
     return this.authService.register({
@@ -28,9 +34,12 @@ export class AuthController {
 
   @Post('/login')
   @UsePipes(new ZodValidationPipe(authLoginBodySchema))
+  @ApiOkResponse({
+    type: AuthLoginResponse,
+  })
   async login(
     @Body()
-    body: AuthLoginBodySchema,
+    body: AuthLoginBodyDto,
   ) {
     const { password, email } = body;
     return this.authService.login({

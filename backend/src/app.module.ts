@@ -14,8 +14,6 @@ import { TestController } from './test.controller';
     AuthModule,
     JwtModule.register({
       global: true,
-      secret: process.env.JWT_SECRET_KEY,
-      signOptions: { expiresIn: process.env.JWT_EXPIRATION },
     }),
   ],
   controllers: [TestController],

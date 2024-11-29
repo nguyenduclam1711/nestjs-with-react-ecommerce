@@ -4,12 +4,14 @@ import { ZodValidationPipe } from 'src/common/pipes/zod-validation.pipe';
 import {
   AuthLoginBodyDto,
   authLoginBodySchema,
-  AuthLoginResponse,
+  AuthRefreshBodyDto,
+  authRefreshBodySchema,
   AuthRegisterBodyDto,
   authRegisterBodySchema,
   AuthRegisterResponse,
 } from 'src/schemas/auth.schema';
 import { ApiOkResponse } from '@nestjs/swagger';
+import { JwtTokens } from 'src/schemas/jwt.schema';
 
 @Controller('auth')
 export class AuthController {
@@ -35,7 +37,7 @@ export class AuthController {
   @Post('/login')
   @UsePipes(new ZodValidationPipe(authLoginBodySchema))
   @ApiOkResponse({
-    type: AuthLoginResponse,
+    type: JwtTokens,
   })
   async login(
     @Body()
@@ -46,5 +48,18 @@ export class AuthController {
       email,
       password,
     });
+  }
+
+  @Post('/refresh')
+  @UsePipes(new ZodValidationPipe(authRefreshBodySchema))
+  @ApiOkResponse({
+    type: JwtTokens,
+  })
+  async refreshToken(
+    @Body()
+    body: AuthRefreshBodyDto,
+  ) {
+    const { refreshToken } = body;
+    return this.authService.refreshAccessToken(refreshToken);
   }
 }

@@ -1,8 +1,18 @@
-import { Injectable, UnprocessableEntityException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { UserCredentialsService } from '../user-credentials/user-credentails.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import {
+  ACCESS_TOKEN_EXPIRATION,
+  ACCESS_TOKEN_SECRET_KEY,
+  REFRESH_TOKEN_EXPIRATION,
+  REFRESH_TOKEN_SECRET_KEY,
+} from 'src/constants/jwt';
 
 @Injectable()
 export class AuthService {
@@ -11,6 +21,23 @@ export class AuthService {
     private userCredentialsService: UserCredentialsService,
     private jwtService: JwtService,
   ) {}
+
+  async generateTokens(payload: { id: number }) {
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(payload, {
+        secret: ACCESS_TOKEN_SECRET_KEY,
+        expiresIn: ACCESS_TOKEN_EXPIRATION,
+      }),
+      this.jwtService.signAsync(payload, {
+        secret: REFRESH_TOKEN_SECRET_KEY,
+        expiresIn: REFRESH_TOKEN_EXPIRATION,
+      }),
+    ]);
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
 
   async register({
     email,
@@ -53,11 +80,21 @@ export class AuthService {
     if (!isMatch) {
       throw new UnprocessableEntityException('Password not match');
     }
-    const accessToken = await this.jwtService.signAsync({
+    return this.generateTokens({
       id: user.id,
     });
-    return {
-      accessToken,
-    };
+  }
+
+  async refreshAccessToken(refreshToken: string) {
+    try {
+      const payload = await this.jwtService.verifyAsync(refreshToken, {
+        secret: REFRESH_TOKEN_SECRET_KEY,
+      });
+      return this.generateTokens({
+        id: payload.id,
+      });
+    } catch {
+      throw new UnauthorizedException();
+    }
   }
 }

@@ -1,8 +1,9 @@
-import { Module, Scope } from '@nestjs/common';
+import { Global, Module, Scope } from '@nestjs/common';
 import Redis from 'ioredis';
 import { PROVIDER } from 'src/constants/provider';
 import { REDIS_URL } from 'src/constants/redis';
 
+@Global()
 @Module({
   providers: [
     {

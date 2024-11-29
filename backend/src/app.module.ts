@@ -5,10 +5,12 @@ import { UserCredentialsModule } from './modules/user-credentials/user-credentia
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { TestController } from './test.controller';
+import { RedisModule } from './modules/redis/redis.module';
 
 @Module({
   imports: [
     PrismaModule,
+    RedisModule,
     UsersModule,
     UserCredentialsModule,
     AuthModule,

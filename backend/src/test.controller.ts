@@ -1,13 +1,20 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { JwtGuard } from './common/guards/jwt.guard';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { Controller, Get, Inject } from '@nestjs/common';
+import Redis from 'ioredis';
+import { PROVIDER } from './constants/provider';
 
 @Controller('test')
 export class TestController {
-  @ApiBearerAuth()
+  constructor(
+    @Inject(PROVIDER.REDIS_CLIENT)
+    private redisService: Redis,
+  ) {}
+
   @Get()
-  @UseGuards(JwtGuard)
-  test() {
-    return 'heheh';
+  async test() {
+    await this.redisService.set('test', new Date().toISOString());
+    const result = await this.redisService.get('test');
+    return {
+      result,
+    };
   }
 }

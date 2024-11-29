@@ -59,7 +59,7 @@ export class AuthController {
     @Body()
     body: AuthRefreshBodyDto,
   ) {
-    const { refreshToken } = body;
-    return this.authService.refreshAccessToken(refreshToken);
+    const { refreshToken, accessToken } = body;
+    return this.authService.refreshAccessToken(refreshToken, accessToken);
   }
 }

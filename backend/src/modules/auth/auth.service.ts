@@ -1,4 +1,5 @@
 import {
+  Inject,
   Injectable,
   UnauthorizedException,
   UnprocessableEntityException,
@@ -11,8 +12,11 @@ import {
   ACCESS_TOKEN_EXPIRATION,
   ACCESS_TOKEN_SECRET_KEY,
   REFRESH_TOKEN_EXPIRATION,
+  REFRESH_TOKEN_EXPIRATION_TIME_IN_REDIS,
   REFRESH_TOKEN_SECRET_KEY,
 } from 'src/constants/jwt';
+import { PROVIDER } from 'src/constants/provider';
+import Redis from 'ioredis';
 
 @Injectable()
 export class AuthService {
@@ -20,7 +24,29 @@ export class AuthService {
     private usersService: UsersService,
     private userCredentialsService: UserCredentialsService,
     private jwtService: JwtService,
+    @Inject(PROVIDER.REDIS_CLIENT)
+    private redis: Redis,
   ) {}
+
+  getRedisAccessTokenKey(refreshToken: string) {
+    return `refreshToken:${refreshToken}`;
+  }
+
+  async setRedisAccessToken(refreshToken: string, accessToken: string) {
+    const redisKey = this.getRedisAccessTokenKey(refreshToken);
+    // pair accessToken with refreshToken
+    await this.redis.set(redisKey, accessToken);
+    await this.redis.expire(redisKey, REFRESH_TOKEN_EXPIRATION_TIME_IN_REDIS);
+  }
+
+  async getRedisAccessToken(refreshToken: string) {
+    return this.redis.get(this.getRedisAccessTokenKey(refreshToken));
+  }
+
+  async deleteRedisRefreshToken(refreshToken: string) {
+    const redisKey = this.getRedisAccessTokenKey(refreshToken);
+    return this.redis.del(redisKey);
+  }
 
   async generateTokens(payload: { id: number }) {
     const [accessToken, refreshToken] = await Promise.all([
@@ -33,6 +59,7 @@ export class AuthService {
         expiresIn: REFRESH_TOKEN_EXPIRATION,
       }),
     ]);
+    await this.setRedisAccessToken(refreshToken, accessToken);
     return {
       accessToken,
       refreshToken,
@@ -85,16 +112,21 @@ export class AuthService {
     });
   }
 
-  async refreshAccessToken(refreshToken: string) {
-    try {
-      const payload = await this.jwtService.verifyAsync(refreshToken, {
+  async refreshAccessToken(refreshToken: string, accessToken: string) {
+    const payload = await this.jwtService
+      .verifyAsync(refreshToken, {
         secret: REFRESH_TOKEN_SECRET_KEY,
+      })
+      .catch(() => {
+        throw new UnauthorizedException();
       });
-      return this.generateTokens({
-        id: payload.id,
-      });
-    } catch {
+    const redisAccessToken = await this.getRedisAccessToken(refreshToken);
+    if (!redisAccessToken || redisAccessToken !== accessToken) {
       throw new UnauthorizedException();
     }
+    await this.deleteRedisRefreshToken(refreshToken);
+    return this.generateTokens({
+      id: payload.id,
+    });
   }
 }

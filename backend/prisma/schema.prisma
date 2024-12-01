@@ -18,19 +18,57 @@ model User {
   name            String
   email           String           @unique
   createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  updatedAt       DateTime?        @updatedAt
   userCredentials UserCredential[]
+  roles           UserRole[]
 }
 
 model UserCredential {
-  id       Int    @id @default(autoincrement())
-  userId   Int
-  password String
-  User     User   @relation(fields: [userId], references: [id])
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  password  String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+  user      User      @relation(fields: [userId], references: [id])
 }
 
 model Permisison {
-  id   Int    @id @default(autoincrement())
-  name String
-  code String @unique
+  id        Int              @id @default(autoincrement())
+  name      String
+  code      String           @unique
+  createdAt DateTime         @default(now())
+  updatedAt DateTime?        @updatedAt
+  roles     RolePermission[]
+}
+
+model Role {
+  id          Int              @id @default(autoincrement())
+  name        String
+  code        String           @unique
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime?        @updatedAt
+  permissions RolePermission[]
+  users       UserRole[]
+}
+
+model RolePermission {
+  roleCode       String
+  permissionCode String
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime?  @updatedAt
+  role           Role       @relation(fields: [roleCode], references: [code])
+  permission     Permisison @relation(fields: [permissionCode], references: [code])
+
+  @@id([roleCode, permissionCode])
+}
+
+model UserRole {
+  userId    Int
+  roleCode  String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+  user      User      @relation(fields: [userId], references: [id])
+  role      Role      @relation(fields: [roleCode], references: [code])
+
+  @@id([userId, roleCode])
 }

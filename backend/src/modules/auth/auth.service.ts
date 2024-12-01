@@ -17,6 +17,8 @@ import {
 } from 'src/constants/jwt';
 import { PROVIDER } from 'src/constants/provider';
 import Redis from 'ioredis';
+import { UserRolesService } from '../user-roles/user-roles.service';
+import { ROLE_DEFAULT_CODE } from 'src/constants/role';
 
 @Injectable()
 export class AuthService {
@@ -26,6 +28,7 @@ export class AuthService {
     private jwtService: JwtService,
     @Inject(PROVIDER.REDIS_CLIENT)
     private redis: Redis,
+    private userRolesService: UserRolesService,
   ) {}
 
   getRedisAccessTokenKey(refreshToken: string) {
@@ -79,10 +82,16 @@ export class AuthService {
       email,
       name,
     });
-    await this.userCredentialsService.createOne({
-      password,
-      userId: createdUser.id,
-    });
+    await Promise.all([
+      this.userCredentialsService.createOne({
+        password,
+        userId: createdUser.id,
+      }),
+      this.userRolesService.createOne({
+        userId: createdUser.id,
+        roleCode: ROLE_DEFAULT_CODE.BUYER,
+      }),
+    ]);
     return createdUser;
   }
 

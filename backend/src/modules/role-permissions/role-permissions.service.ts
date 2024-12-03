@@ -48,9 +48,8 @@ export class RolePermissionsService {
   async getRolePermissions(roleCode: string): Promise<{
     [permissionCode: string]: boolean;
   }> {
-    const getRolePermissionRedisKey = this.getRolePermissionRedisKey;
     return this.redisService.getFromRedisOrDb({
-      redisKey: getRolePermissionRedisKey(roleCode),
+      redisKey: this.getRolePermissionRedisKey(roleCode),
       getFromDb: async () => {
         const rolePermissions = await this.prisma.rolePermission.findMany({
           where: {

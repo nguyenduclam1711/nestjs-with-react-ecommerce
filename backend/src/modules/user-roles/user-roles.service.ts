@@ -6,6 +6,10 @@ import { Prisma } from '@prisma/client';
 export class UserRolesService {
   constructor(private prisma: PrismaService) {}
 
+  async findMany(args: Parameters<typeof this.prisma.userRole.findMany>[0]) {
+    return this.prisma.userRole.findMany(args);
+  }
+
   async createOne(
     data: Prisma.XOR<
       Prisma.UserRoleCreateInput,

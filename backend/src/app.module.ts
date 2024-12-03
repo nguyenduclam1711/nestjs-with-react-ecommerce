@@ -6,6 +6,7 @@ import { TestController } from './test.controller';
 import { RedisModule } from './modules/redis/redis.module';
 import { InitDataService } from './common/services/init-data.service';
 import { RolePermissionsModule } from './modules/role-permissions/role-permissions.module';
+import { UserRolesModule } from './modules/user-roles/user-roles.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { RolePermissionsModule } from './modules/role-permissions/role-permissio
     RedisModule,
     AuthModule,
     RolePermissionsModule,
+    UserRolesModule,
     JwtModule.register({
       global: true,
     }),

@@ -19,6 +19,7 @@ import { PROVIDER } from 'src/constants/provider';
 import Redis from 'ioredis';
 import { UserRolesService } from '../user-roles/user-roles.service';
 import { ROLE_DEFAULT_CODE } from 'src/constants/role';
+import { JwtPayload } from 'src/schemas/jwt.schema';
 
 @Injectable()
 export class AuthService {
@@ -51,7 +52,7 @@ export class AuthService {
     return this.redis.del(redisKey);
   }
 
-  async generateTokens(payload: { id: number }) {
+  async generateTokens(payload: JwtPayload) {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
         secret: ACCESS_TOKEN_SECRET_KEY,

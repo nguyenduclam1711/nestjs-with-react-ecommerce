@@ -32,7 +32,7 @@ model UserCredential {
   user      User      @relation(fields: [userId], references: [id])
 }
 
-model Permisison {
+model Permission {
   id        Int              @id @default(autoincrement())
   name      String
   code      String           @unique
@@ -57,7 +57,7 @@ model RolePermission {
   createdAt      DateTime   @default(now())
   updatedAt      DateTime?  @updatedAt
   role           Role       @relation(fields: [roleCode], references: [code])
-  permission     Permisison @relation(fields: [permissionCode], references: [code])
+  permission     Permission @relation(fields: [permissionCode], references: [code])
 
   @@id([roleCode, permissionCode])
 }

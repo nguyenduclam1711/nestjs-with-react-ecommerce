@@ -9,6 +9,6 @@ export class PermissionsService {
   ) {}
 
   async getPermissions() {
-    return this.prisma.permisison.findMany();
+    return this.prisma.permission.findMany();
   }
 }

@@ -1,14 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { PasswordUtil } from 'src/common/utils/password.util';
+import { PrismaBaseService } from 'src/common/services/permission-code.service';
 
 @Injectable()
-export class UserCredentialsService {
-  constructor(private prisma: PrismaService) {}
+export class UserCredentialsService extends PrismaBaseService<
+  PrismaClient['userCredential']
+> {
+  constructor(private prisma: PrismaService) {
+    super(prisma.userCredential);
+  }
 
   async findByUserId(userId: number) {
-    return this.prisma.userCredential.findFirst({
+    return this.prismaModel.findFirst({
       where: {
         userId,
       },
@@ -23,7 +28,7 @@ export class UserCredentialsService {
   ) {
     const { password, ...restData } = data;
     const hashedPassword = await PasswordUtil.generateHashedPassword(password);
-    return this.prisma.userCredential.create({
+    return this.prismaModel.create({
       data: {
         ...restData,
         password: hashedPassword,

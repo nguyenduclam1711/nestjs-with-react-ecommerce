@@ -1,19 +1,27 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { INIT_PERMISSIONS } from 'src/init-data/permission.init';
-import { INIT_ROLE_PERMISSIONS } from 'src/init-data/role-permission.init';
 import { INIT_ROLES } from 'src/init-data/role.init';
 import { INIT_ADMIN } from 'src/init-data/user.init';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { PasswordUtil } from '../utils/password.util';
 import { ROLE_DEFAULT_CODE } from 'src/constants/role';
 import { RolePermissionsService } from 'src/modules/role-permissions/role-permissions.service';
+import { ModelPermission } from 'src/schemas/permission.schema';
+import { PermissionUtil } from '../utils/permission.util';
 
 @Injectable()
 export class InitDataService implements OnModuleInit {
+  models: string[];
+  modelPermissions: ModelPermission[];
+
   constructor(
     private prisma: PrismaService,
     private rolePermissionsService: RolePermissionsService,
-  ) {}
+  ) {
+    this.models = Object.keys((prisma as any)._runtimeDataModel.models);
+    this.modelPermissions = this.models.map((modelName) =>
+      PermissionUtil.getAllPermissionCode(modelName),
+    );
+  }
 
   async onModuleInit() {
     await this.initData();
@@ -27,21 +35,31 @@ export class InitDataService implements OnModuleInit {
     console.log('Init data');
   }
 
+  private async initPermission(permissionCode: string) {
+    return this.prisma.permission.upsert({
+      where: {
+        code: permissionCode,
+      },
+      create: {
+        name: permissionCode,
+        code: permissionCode,
+        type: 'DEFAULT',
+      },
+      update: {
+        name: permissionCode,
+      },
+    });
+  }
+
   private async initPermissions() {
     await Promise.all(
-      INIT_PERMISSIONS.map((permission) => {
-        return this.prisma.permission.upsert({
-          where: {
-            code: permission.code,
-          },
-          create: {
-            name: permission.name,
-            code: permission.code,
-          },
-          update: {
-            name: permission.name,
-          },
-        });
+      this.modelPermissions.map(async (modelPermission) => {
+        return Promise.all([
+          this.initPermission(modelPermission.viewPermission),
+          this.initPermission(modelPermission.viewDetailPermission),
+          this.initPermission(modelPermission.updatePermission),
+          this.initPermission(modelPermission.deletePermission),
+        ]);
       }),
     );
     console.log('Init permissions');
@@ -68,27 +86,6 @@ export class InitDataService implements OnModuleInit {
   }
 
   private async initRolePermissions() {
-    await Promise.all(
-      INIT_ROLE_PERMISSIONS.map(async (rolePermission) => {
-        const { roleCode, permissionCodes } = rolePermission;
-        const promises = permissionCodes.map(async (permissionCode) => {
-          return this.prisma.rolePermission.upsert({
-            where: {
-              roleCode_permissionCode: {
-                roleCode,
-                permissionCode,
-              },
-            },
-            create: {
-              roleCode,
-              permissionCode,
-            },
-            update: {},
-          });
-        });
-        return Promise.all(promises);
-      }),
-    );
     await this.rolePermissionsService.setRolePermissionsInRedis();
     console.log('Init role permissions');
   }

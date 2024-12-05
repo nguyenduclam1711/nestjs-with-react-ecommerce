@@ -32,6 +32,11 @@ model UserCredential {
   user      User      @relation(fields: [userId], references: [id])
 }
 
+enum PermissionType {
+  DEFAULT
+  CUSTOM
+}
+
 model Permission {
   id        Int              @id @default(autoincrement())
   name      String
@@ -39,6 +44,7 @@ model Permission {
   createdAt DateTime         @default(now())
   updatedAt DateTime?        @updatedAt
   roles     RolePermission[]
+  type      PermissionType   @default(CUSTOM)
 }
 
 model Role {

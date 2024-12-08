@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, PrismaClient } from '@prisma/client';
-import { PrismaBaseService } from 'src/common/services/permission-code.service';
+import { PrismaBaseService } from 'src/common/services/prisma-base.service';
 
 @Injectable()
 export class UserRolesService extends PrismaBaseService<

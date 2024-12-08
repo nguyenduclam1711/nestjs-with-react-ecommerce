@@ -9,10 +9,11 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { ACCESS_TOKEN_SECRET_KEY } from 'src/constants/jwt';
-import { PERMISSIONS_KEY } from '../decorators/permissions.decorators';
+import { PERMISSIONS_KEY } from '../decorators/permissions.decorator';
 import { JwtPayload } from 'src/schemas/jwt.schema';
 import { UserRolesService } from 'src/modules/user-roles/user-roles.service';
 import { RolePermissionsService } from 'src/modules/role-permissions/role-permissions.service';
+import { ROLE_DEFAULT_CODE } from 'src/constants/role';
 
 @Injectable()
 export class AppGuard implements CanActivate {
@@ -57,6 +58,19 @@ export class AppGuard implements CanActivate {
     return type === 'Bearer' ? token : undefined;
   }
 
+  private isAdmin(
+    userRoles: Array<{
+      userId: number;
+      roleCode: string;
+      createdAt: Date;
+      updatedAt: Date | null;
+    }>,
+  ) {
+    return userRoles.some(
+      (userRole) => userRole.roleCode === ROLE_DEFAULT_CODE.ADMIN,
+    );
+  }
+
   private async authorize(context: ExecutionContext) {
     const requiredPermissions = this.reflector.getAllAndOverride<string[]>(
       PERMISSIONS_KEY,
@@ -72,6 +86,10 @@ export class AppGuard implements CanActivate {
         userId,
       },
     });
+    const isAdmin = this.isAdmin(userRoles);
+    if (isAdmin) {
+      return true;
+    }
     const rolePermissions = await Promise.all(
       userRoles.map(async (userRole) => {
         const { roleCode } = userRole;

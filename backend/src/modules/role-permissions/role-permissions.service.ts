@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { RedisService } from '../redis/redis.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { set } from 'lodash';
-import { PrismaBaseService } from 'src/common/services/permission-code.service';
+import { PrismaBaseService } from 'src/common/services/prisma-base.service';
 import { PrismaClient } from '@prisma/client';
 
 @Injectable()

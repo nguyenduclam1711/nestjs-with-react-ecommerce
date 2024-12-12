@@ -1,9 +1,10 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { kebabCase } from 'lodash';
 import { PermissionUtil } from '../utils/permission.util';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { MODEL } from 'src/constants/model';
 import { Auth } from '../decorators/auth.decorator';
+import { BaseControllerFindManyDto } from 'src/schemas/base-controller.schema';
 
 export function BaseControllerFactory(modelField: keyof typeof MODEL) {
   const model = MODEL[modelField];
@@ -19,9 +20,13 @@ export function BaseControllerFactory(modelField: keyof typeof MODEL) {
     }
 
     @Get()
-    @Auth(permission.viewPermission)
-    async findMany() {
-      return this.prismaModel.findMany();
+    // @Auth(permission.viewPermission)
+    async findMany(
+      @Query()
+      query: BaseControllerFindManyDto,
+    ) {
+      console.log('query', query);
+      return this.prismaModel.findMany(query);
     }
   }
 

@@ -18,34 +18,34 @@ export class AuthRegisterBodyDto {
   @ApiProperty({
     example: 'test',
   })
-  name: string;
+  name: string = '';
 
   @ApiProperty({
     example: 'test@gmail.com',
   })
-  email: string;
+  email: string = '';
 
   @ApiProperty({
     example: '@Abc1234',
   })
-  password: string;
+  password: string = '';
 }
 
 export class AuthRegisterResponse {
   @ApiProperty()
-  id: number;
+  id: number = 0;
 
   @ApiProperty()
-  name: string;
+  name: string = '';
 
   @ApiProperty()
-  email: string;
+  email: string = '';
 
   @ApiProperty()
-  createdDate: Date;
+  createdDate: Date = new Date();
 
   @ApiProperty()
-  updatedDate: Date;
+  updatedDate: Date = new Date();
 }
 
 export const authLoginBodySchema = authRegisterBodySchema.pick({
@@ -57,12 +57,12 @@ export class AuthLoginBodyDto {
   @ApiProperty({
     example: 'test@gmail.com',
   })
-  email: string;
+  email: string = '';
 
   @ApiProperty({
     example: '@Abc1234',
   })
-  password: string;
+  password: string = '';
 }
 
 export const authRefreshBodySchema = z.object({
@@ -72,8 +72,8 @@ export const authRefreshBodySchema = z.object({
 
 export class AuthRefreshBodyDto {
   @ApiProperty()
-  accessToken: string;
+  accessToken: string = '';
 
   @ApiProperty()
-  refreshToken: string;
+  refreshToken: string = '';
 }

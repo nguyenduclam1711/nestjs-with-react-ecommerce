@@ -15,6 +15,10 @@ export const PermissionUtil = {
         PERMISSION_PREFIX.VIEW_DETAIL,
         modelName,
       ),
+      createPermission: PermissionUtil.getPermisisonCode(
+        PERMISSION_PREFIX.CREATE,
+        modelName,
+      ),
       updatePermission: PermissionUtil.getPermisisonCode(
         PERMISSION_PREFIX.UPDATE,
         modelName,

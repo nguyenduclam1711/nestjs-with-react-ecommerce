@@ -1,3 +1,3 @@
 import { BaseControllerFactory } from 'src/common/controllers/base.controller';
 
-export class UsersController extends BaseControllerFactory('USER') {}
+export class RolePermissions extends BaseControllerFactory('ROLE_PERMISSION') {}

@@ -1,18 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma, PrismaClient } from '@prisma/client';
-import { PrismaBaseService } from 'src/common/services/prisma-base.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
-export class UserRolesService extends PrismaBaseService<
-  PrismaClient['userRole']
-> {
-  constructor(private prisma: PrismaService) {
-    super(prisma.userRole);
-  }
+export class UserRolesService {
+  constructor(private prisma: PrismaService) {}
 
   async findMany(args: Parameters<typeof this.prisma.userRole.findMany>[0]) {
-    return this.prismaModel.findMany(args);
+    return this.prisma.userRole.findMany(args);
   }
 
   async createOne(
@@ -21,7 +16,7 @@ export class UserRolesService extends PrismaBaseService<
       Prisma.UserRoleUncheckedCreateInput
     >,
   ) {
-    return this.prismaModel.create({
+    return this.prisma.userRole.create({
       data,
     });
   }

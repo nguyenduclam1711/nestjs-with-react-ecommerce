@@ -5,7 +5,7 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
-import { UserCredentialsService } from '../user-credentials/user-credentails.service';
+import { UserCredentialsService } from '../user-credentials/user-credentials.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import {

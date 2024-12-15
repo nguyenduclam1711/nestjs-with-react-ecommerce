@@ -2,10 +2,19 @@ import { ArgumentMetadata, PipeTransform } from '@nestjs/common';
 import { ZodSchema } from 'zod';
 
 export class ZodValidationPipe implements PipeTransform {
-  constructor(private schema: ZodSchema) {}
+  private type: ArgumentMetadata['type'] = 'body';
+
+  constructor(
+    private schema: ZodSchema,
+    type?: ArgumentMetadata['type'],
+  ) {
+    if (type) {
+      this.type = type;
+    }
+  }
 
   transform(value: any, metadata: ArgumentMetadata) {
-    if (metadata.type === 'body') {
+    if (metadata.type === this.type) {
       const parsedValue = this.schema.parse(value);
       return parsedValue;
     }

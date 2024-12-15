@@ -1,19 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-import { PrismaBaseService } from 'src/common/services/prisma-base.service';
 
 @Injectable()
-export class UsersService extends PrismaBaseService<PrismaClient['user']> {
-  constructor(private prisma: PrismaService) {
-    super(prisma.user);
-  }
+export class UsersService {
+  constructor(private prisma: PrismaService) {}
 
   async findOne(arg: {
     where?: Prisma.UserWhereUniqueInput;
     select?: Prisma.UserSelectScalar;
   }) {
-    return this.prismaModel.findFirst({
+    return this.prisma.user.findFirst({
       where: arg.where,
       select: arg.select,
     });
@@ -22,7 +19,7 @@ export class UsersService extends PrismaBaseService<PrismaClient['user']> {
   async createOne(
     data: Prisma.XOR<Prisma.UserCreateInput, Prisma.UserUncheckedCreateInput>,
   ) {
-    return this.prismaModel.create({
+    return this.prisma.user.create({
       data,
     });
   }

@@ -2,21 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { RedisService } from '../redis/redis.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { set } from 'lodash';
-import { PrismaBaseService } from 'src/common/services/prisma-base.service';
-import { PrismaClient } from '@prisma/client';
 
 @Injectable()
-export class RolePermissionsService extends PrismaBaseService<
-  PrismaClient['rolePermission']
-> {
+export class RolePermissionsService {
   rolePermisisonsRedisPrefix = 'role:permissions:';
 
   constructor(
     private redisService: RedisService,
     private prisma: PrismaService,
-  ) {
-    super(prisma.rolePermission);
-  }
+  ) {}
 
   private getRolePermissionRedisKey(roleCode: string) {
     return `${this.rolePermisisonsRedisPrefix}${roleCode}`;
@@ -29,7 +23,7 @@ export class RolePermissionsService extends PrismaBaseService<
   }
 
   async setRolePermissionsInRedis() {
-    const rolePermissions = await this.prismaModel.findMany();
+    const rolePermissions = await this.prisma.rolePermission.findMany();
     const mapRoleToPermissions: {
       [roleCode: string]: {
         [permissionCode: string]: boolean;
@@ -57,7 +51,7 @@ export class RolePermissionsService extends PrismaBaseService<
     return this.redisService.getFromRedisOrDb({
       redisKey: this.getRolePermissionRedisKey(roleCode),
       getFromDb: async () => {
-        const rolePermissions = await this.prismaModel.findMany({
+        const rolePermissions = await this.prisma.rolePermission.findMany({
           where: {
             roleCode,
           },

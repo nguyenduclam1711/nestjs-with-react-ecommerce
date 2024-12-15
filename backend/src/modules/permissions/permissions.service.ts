@@ -1,17 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { PrismaBaseService } from 'src/common/services/prisma-base.service';
-import { PrismaClient } from '@prisma/client';
 
 @Injectable()
-export class PermissionsService extends PrismaBaseService<
-  PrismaClient['permission']
-> {
-  constructor(private prisma: PrismaService) {
-    super(prisma.permission);
-  }
+export class PermissionsService {
+  constructor(private prisma: PrismaService) {}
 
   async getPermissions() {
-    return this.prismaModel.findMany();
+    return this.prisma.permission.findMany();
   }
 }

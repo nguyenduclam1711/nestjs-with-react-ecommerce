@@ -72,8 +72,3 @@ export const authRefreshBodySchema = z.object({
   refreshToken: z.string(),
   accessToken: z.string(),
 });
-
-export class AuthRefreshBodyDto {
-  @ApiProperty()
-  refreshToken: string = '';
-}

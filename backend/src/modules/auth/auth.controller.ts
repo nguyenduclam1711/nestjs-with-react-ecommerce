@@ -1,10 +1,17 @@
-import { Body, Controller, Post, Response, UsePipes } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Request,
+  Response,
+  UnprocessableEntityException,
+  UsePipes,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ZodValidationPipe } from 'src/common/pipes/zod-validation.pipe';
 import {
   AuthLoginBodyDto,
   authLoginBodySchema,
-  AuthRefreshBodyDto,
   authRefreshBodySchema,
   AuthRegisterBodyDto,
   authRegisterBodySchema,
@@ -12,8 +19,14 @@ import {
 } from 'src/schemas/auth.schema';
 import { ApiOkResponse } from '@nestjs/swagger';
 import { JwtTokens } from 'src/schemas/jwt.schema';
-import { Response as ExpressResponse } from 'express';
-import { REFRESH_TOKEN_EXPIRATION_IN_MILISECONDS } from 'src/constants/jwt';
+import {
+  Response as ExpressResponse,
+  Request as ExpressRequest,
+} from 'express';
+import {
+  REFRESH_TOKEN_COOKIE_KEY,
+  REFRESH_TOKEN_EXPIRATION_IN_MILISECONDS,
+} from 'src/constants/jwt';
 
 @Controller('auth')
 export class AuthController {
@@ -44,7 +57,7 @@ export class AuthController {
     const { res, accessToken, refreshToken } = args;
 
     const now = new Date().valueOf();
-    res.cookie('refreshToken', refreshToken, {
+    res.cookie(REFRESH_TOKEN_COOKIE_KEY, refreshToken, {
       sameSite: 'strict',
       httpOnly: true,
       path: '/',
@@ -85,13 +98,17 @@ export class AuthController {
     type: JwtTokens,
   })
   async refreshToken(
-    @Body()
-    body: AuthRefreshBodyDto,
     @Response()
     res: ExpressResponse,
+    @Request()
+    req: ExpressRequest,
   ) {
+    const cookieRefreshToken = req.cookies[REFRESH_TOKEN_COOKIE_KEY];
+    if (!cookieRefreshToken) {
+      throw new UnprocessableEntityException('Wrong refresh token');
+    }
     const { accessToken, refreshToken } =
-      await this.authService.refreshAccessToken(body.refreshToken);
+      await this.authService.refreshAccessToken(cookieRefreshToken);
     this.handleSendTokens({
       res,
       refreshToken,

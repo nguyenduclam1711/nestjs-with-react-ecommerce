@@ -13,3 +13,5 @@ export const REFRESH_TOKEN_EXPIRATION_IN_MILISECONDS = ms(
 // Redis expire time in seconds
 export const REFRESH_TOKEN_EXPIRATION_TIME_IN_REDIS =
   REFRESH_TOKEN_EXPIRATION_IN_MILISECONDS / 1000;
+
+export const REFRESH_TOKEN_COOKIE_KEY = 'refreshToken';

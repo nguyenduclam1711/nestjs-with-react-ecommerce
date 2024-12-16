@@ -122,17 +122,17 @@ export class AuthService {
     });
   }
 
-  async refreshAccessToken(refreshToken: string, accessToken: string) {
+  async refreshAccessToken(refreshToken: string) {
     const payload = await this.jwtService
       .verifyAsync(refreshToken, {
         secret: REFRESH_TOKEN_SECRET_KEY,
       })
       .catch(() => {
-        throw new UnauthorizedException();
+        throw new UnprocessableEntityException('Wrong refresh token');
       });
     const redisAccessToken = await this.getRedisAccessToken(refreshToken);
-    if (!redisAccessToken || redisAccessToken !== accessToken) {
-      throw new UnauthorizedException();
+    if (!redisAccessToken) {
+      throw new UnprocessableEntityException('Refresh token has expired');
     }
     await this.deleteRedisRefreshToken(refreshToken);
     return this.generateTokens({

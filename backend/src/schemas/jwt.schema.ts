@@ -7,7 +7,4 @@ export type JwtPayload = {
 export class JwtTokens {
   @ApiProperty()
   accessToken: string = '';
-
-  @ApiProperty()
-  refreshToken: string = '';
 }

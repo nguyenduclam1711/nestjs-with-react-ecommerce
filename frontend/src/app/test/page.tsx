@@ -1,62 +1,48 @@
 "use client";
+import BaseTextField from "@/components/base/base-text-field";
 import DynamicForm from "@/components/base/dynamic-form";
-import { TextField } from "@radix-ui/themes";
+import { IconButton } from "@radix-ui/themes";
+import { DotsHorizontalIcon, MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
 
 const TestPage = () => {
   const [formValues, setFormValues] = useState({});
 
   return (
-    <DynamicForm
-      values={formValues}
-      onChange={setFormValues}
-      items={[
-        [
-          {
-            required: true,
-            label: "Name",
-            field: "name",
-            Component: ({ value = "", onChange }) => {
-              return (
-                <TextField.Root onChange={e => onChange(e.target.value)} value={value} />
-              );
+    <div>
+      <DynamicForm
+        values={formValues}
+        onChange={setFormValues}
+        items={[
+          [
+            {
+              required: true,
+              label: "Name",
+              field: "name",
+              Component: BaseTextField,
+              validateValue(value) {
+                return !!value && value.trim().length > 0;
+              },
+              validateErrorMessage: "Required",
+              componentProps: {
+                prefixIcon: {
+                  children: (
+                    <MagnifyingGlassIcon />
+                  ),
+                },
+                suffixIcon: {
+                  children: (
+                    <IconButton variant="ghost">
+                      <DotsHorizontalIcon />
+                    </IconButton>
+                  ),
+                },
+              },
             },
-            validateValue(value) {
-              return !!value && value.trim().length > 0;
-            },
-          },
-          {
-            label: "Name2",
-            field: "name2",
-            Component: ({ value = "", onChange }) => {
-              return (
-                <TextField.Root onChange={e => onChange(e.target.value)} value={value} />
-              );
-            },
-          },
-        ],
-        [
-          {
-            label: "Name3",
-            field: "name3",
-            Component: ({ value = "", onChange }) => {
-              return (
-                <TextField.Root onChange={e => onChange(e.target.value)} value={value} />
-              );
-            },
-          },
-          {
-            label: "Name4",
-            field: "name4",
-            Component: ({ value = "", onChange }) => {
-              return (
-                <TextField.Root onChange={e => onChange(e.target.value)} value={value} />
-              );
-            },
-          },
-        ],
-      ]}
-    />
+          ],
+        ]}
+      />
+    </div>
   );
 };
 

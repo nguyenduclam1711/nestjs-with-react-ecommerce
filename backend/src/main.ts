@@ -7,6 +7,15 @@ import cookieParser from 'cookie-parser';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Setup cors
+  const corsOrigins = process.env.CORS_ORIGINS;
+  if (!corsOrigins) {
+    throw new Error('No cors origins in env');
+  }
+  app.enableCors({
+    origin: corsOrigins.split(','),
+  });
+
   // Setup swagger
   const config = new DocumentBuilder()
     .addBearerAuth()

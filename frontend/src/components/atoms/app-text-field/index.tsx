@@ -1,12 +1,12 @@
 import { TextField } from "@radix-ui/themes";
 import { ChangeEventHandler } from "react";
 
-type BaseTextFieldProps = {
+type AppTextFieldProps = {
   onChange?: (value: string) => void;
   prefixIcon?: TextField.SlotProps;
   suffixIcon?: TextField.SlotProps;
 } & TextField.RootProps;
-const BaseTextField = (props: BaseTextFieldProps) => {
+const AppTextField = (props: AppTextFieldProps) => {
   const { onChange: onChangeProp, children, prefixIcon, suffixIcon, ...restProps } = props;
 
   const onChange: ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -30,4 +30,4 @@ const BaseTextField = (props: BaseTextFieldProps) => {
   );
 };
 
-export default BaseTextField;
+export default AppTextField;

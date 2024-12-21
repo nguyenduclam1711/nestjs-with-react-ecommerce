@@ -1,45 +1,46 @@
-import { Flex } from "@radix-ui/themes";
 import { DynamicFormProps } from "./types";
-import DynamicFormItem from "./dynamic-form-item";
 import DynamicFormContext from "./dynamic-form-context";
-import { useState } from "react";
+import { useDynamicForm } from "./hooks";
+import { generateFormItems, getValidateFunctions } from "./helpers";
 
 const DynamicForm = (props: DynamicFormProps) => {
-  const { items, values: valuesProp, onChange, direction = "vertical" } = props;
-  const [localValues, setLocalValues] = useState<Record<string, any>>({});
-  const [errors, setErrors] = useState<Record<string, any>>({});
-
-  const values = valuesProp ?? localValues;
-  const setValues = onChange ?? setLocalValues;
-
-  const flexDirection = direction === "vertical" ? "column" : "row";
+  const {
+    items,
+    onChange,
+    defaultRowFlexProps = { gap: "2", direction: "column" },
+    form,
+    onSubmit,
+  } = props;
+  const wrapForm = useDynamicForm(form);
 
   if (items.length === 0) {
     return null;
   }
+
+  const { validateValueFunctionArr, validateValueFunctions } = getValidateFunctions(items);
+
+  wrapForm.onSubmitRef.current = onSubmit;
+  wrapForm.validateValueFunctionsRef.current = validateValueFunctions;
+  wrapForm.validateValueFunctionArrRef.current = validateValueFunctionArr;
+
+  const setValues = (newValues: Record<string, any>) => {
+    wrapForm.setValues(newValues);
+    if (onChange) {
+      onChange(newValues);
+    }
+  };
+
   return (
     <DynamicFormContext.Provider
       value={{
-        values,
+        values: wrapForm.values,
         setValues,
-        errors,
-        setErrors,
+        errors: wrapForm.errors,
+        setErrors: wrapForm.setErrors,
+        validateValueFunctions: wrapForm.validateValueFunctionsRef.current,
       }}
     >
-      {items.map((row, rowIndex) => {
-        return (
-          <Flex key={`dynamic-form-row-${rowIndex}`} gap="2" direction={flexDirection}>
-            {row.map((itemConfig, colIndex) => {
-              return (
-                <DynamicFormItem
-                  key={`dynamic-form-col-${rowIndex}-${colIndex}`}
-                  {...itemConfig}
-                />
-              );
-            })}
-          </Flex>
-        );
-      })}
+      {generateFormItems(items, defaultRowFlexProps)}
     </DynamicFormContext.Provider>
   );
 };

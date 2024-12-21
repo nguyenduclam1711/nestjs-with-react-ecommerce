@@ -2,29 +2,41 @@ import AppTextField from "@/components/atoms/app-text-field";
 import { DynamicFormProps } from "@/components/atoms/dynamic-form/types";
 import { FormValidateUtil } from "@/utils/form-validate.util";
 
-export const getFormItems: (formValues: Record<string, any>) => DynamicFormProps["items"] = (formValues: Record<string, any>) => [
-  [
-    {
+export const formItems: DynamicFormProps["items"] = [
+  {
+    formItemProps: {
       label: "Email",
       Component: AppTextField,
       field: "email",
       required: true,
-      validateValue: FormValidateUtil.require,
-      validateErrorMessage: "Email is required",
+      rules: [
+        {
+          validator: FormValidateUtil.require,
+          message: "Email is required",
+        },
+        {
+          validator: FormValidateUtil.email,
+          message: "Email is not in correct format",
+        },
+      ],
     },
-  ],
-  [
-    {
+  },
+  {
+    formItemProps: {
       label: "Name",
       Component: AppTextField,
       field: "name",
       required: true,
-      validateValue: FormValidateUtil.require,
-      validateErrorMessage: "Name is required",
+      rules: [
+        {
+          validator: FormValidateUtil.require,
+          message: "Name is required",
+        },
+      ],
     },
-  ],
-  [
-    {
+  },
+  {
+    formItemProps: {
       label: "Password",
       Component: AppTextField,
       field: "password",
@@ -32,21 +44,34 @@ export const getFormItems: (formValues: Record<string, any>) => DynamicFormProps
       componentProps: {
         type: "password",
       },
-      validateValue: FormValidateUtil.require,
-      validateErrorMessage: "Password is required",
+      rules: [
+        {
+          validator: FormValidateUtil.require,
+          message: "Password is required",
+        },
+        {
+          validator: FormValidateUtil.password,
+          message: "Password must have at least 1 number and 1 special character",
+        },
+      ],
     },
-  ],
-  [
-    {
+  },
+  {
+    formItemProps: {
       label: "Repassword",
       Component: AppTextField,
       field: "repassword",
-      required: true,
       componentProps: {
         type: "password",
       },
-      validateValue: value => FormValidateUtil.matching(value, formValues.password),
-      validateErrorMessage: "Repassword is not matching with Password",
+      rules: [
+        {
+          validator: (value, values) => {
+            return FormValidateUtil.matching(value, values.password);
+          },
+          message: "Repassword is not matching with password",
+        },
+      ],
     },
-  ],
+  },
 ];

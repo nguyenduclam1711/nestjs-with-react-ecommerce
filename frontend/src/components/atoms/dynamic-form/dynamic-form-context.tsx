@@ -6,6 +6,7 @@ const DynamicFormContext = createContext<DynamicFormContextType>({
   setValues: () => { },
   errors: {},
   setErrors: () => { },
+  validateValueFunctions: {},
 });
 
 export default DynamicFormContext;

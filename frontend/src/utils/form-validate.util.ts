@@ -8,6 +8,9 @@ export const FormValidateUtil = {
     return value1 === value2;
   },
   email(value?: string): boolean {
-    return !!value && REGEX.EMAIL.test(value);
+    return !!value && REGEX.email.test(value);
+  },
+  password(value?: string): boolean {
+    return !!value && REGEX.password.test(value);
   },
 };

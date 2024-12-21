@@ -1,29 +1,25 @@
 "use client";
 import DynamicForm from "@/components/atoms/dynamic-form";
 import { Button, Heading } from "@radix-ui/themes";
-import { useEffect, useState } from "react";
-import { getFormItems } from "./constants";
+import { formItems } from "./constants";
 import useQuery from "@/hooks/use-query";
 import { registerService } from "@/services/auth.service";
+import { useDynamicForm } from "@/components/atoms/dynamic-form/hooks";
 
 const RegisterPage = () => {
-  const [formValues, setFormValues] = useState<Record<string, string>>({});
-  const formItems = getFormItems(formValues);
+  const form = useDynamicForm();
 
-  const { data, loading, handleFetch } = useQuery({
+  const { loading } = useQuery({
     fetchFn: () => {
+      const { values } = form;
       return registerService({
-        name: formValues.name,
-        email: formValues.email,
-        password: formValues.password,
+        name: values.name,
+        email: values.email,
+        password: values.password,
       });
     },
     initialData: {},
   });
-
-  useEffect(() => {
-    console.log("data", data);
-  }, [data]);
 
   return (
     <>
@@ -31,11 +27,18 @@ const RegisterPage = () => {
         Register
       </Heading>
       <DynamicForm
-        values={formValues}
-        onChange={setFormValues}
+        form={form}
         items={formItems}
+        onSubmit={async (values) => {
+          await new Promise<void>((res) => {
+            setTimeout(() => {
+              console.log("values", values);
+              res();
+            }, 500);
+          });
+        }}
       />
-      <Button loading={loading} size="3" className="w-full" mt="3" onClick={handleFetch}>
+      <Button loading={loading} size="3" className="w-full" mt="3" onClick={form.submit}>
         Submit
       </Button>
     </>

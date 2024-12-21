@@ -1,11 +1,18 @@
 import { BoxProps, FlexProps } from "@radix-ui/themes";
-import { FC } from "react";
+import { FC, RefObject } from "react";
+
+export type DynamicFormValidateValueFunction = (value: any, values: DynamicFormContextType["values"]) => Promise<{ error: boolean; message: string }>;
+
+export type DynamicFormValidateValueFunctions = {
+  [key: string]: DynamicFormValidateValueFunction | DynamicFormValidateValueFunctions;
+};
 
 export type DynamicFormContextType = {
   values: Record<string, any>;
   setValues: (newValues: DynamicFormContextType["values"]) => void;
   errors: Record<string, any>;
   setErrors: (newErrors: DynamicFormContextType["errors"]) => void;
+  validateValueFunctions: DynamicFormValidateValueFunctions;
 };
 
 export type DynamicFormItemProps = {
@@ -29,9 +36,20 @@ export type DynamicFormItem = {
   formItemProps: DynamicFormItemProps;
 };
 
+export type DynamicForm = {
+  submit: () => Promise<void>;
+  validateValueFunctionsRef: RefObject<DynamicFormValidateValueFunctions>;
+  validateValueFunctionArrRef: RefObject<Array<{
+    validateFunction: DynamicFormValidateValueFunction;
+    field: DynamicFormItemProps["field"];
+  }>>;
+  onSubmitRef: RefObject<DynamicFormProps["onSubmit"]>;
+} & Omit<DynamicFormContextType, "validateValueFunctions">;
+
 export type DynamicFormProps = {
   items: DynamicFormItem[];
-  values?: DynamicFormContextType["values"];
   onChange?: DynamicFormContextType["setValues"];
   defaultRowFlexProps?: FlexProps;
+  form?: DynamicForm;
+  onSubmit?: (values: DynamicFormContextType["values"]) => (void | Promise<void>);
 };

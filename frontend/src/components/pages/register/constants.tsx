@@ -2,7 +2,7 @@ import AppTextField from "@/components/atoms/app-text-field";
 import { DynamicFormProps } from "@/components/atoms/dynamic-form/types";
 import { FormValidateUtil } from "@/utils/form-validate.util";
 
-export const getFormItems: (formValues: Record<string, any>) => DynamicFormProps["items"] = (formValues: Record<string, any>) => [
+export const formItems: DynamicFormProps["items"] = [
   {
     formItemProps: {
       label: "Email",
@@ -27,6 +27,12 @@ export const getFormItems: (formValues: Record<string, any>) => DynamicFormProps
       Component: AppTextField,
       field: "name",
       required: true,
+      rules: [
+        {
+          validator: FormValidateUtil.require,
+          message: "Name is required",
+        },
+      ],
     },
   },
   {
@@ -38,6 +44,16 @@ export const getFormItems: (formValues: Record<string, any>) => DynamicFormProps
       componentProps: {
         type: "password",
       },
+      rules: [
+        {
+          validator: FormValidateUtil.require,
+          message: "Password is required",
+        },
+        {
+          validator: FormValidateUtil.password,
+          message: "Password must have at least 1 number and 1 special character",
+        },
+      ],
     },
   },
   {
@@ -45,10 +61,17 @@ export const getFormItems: (formValues: Record<string, any>) => DynamicFormProps
       label: "Repassword",
       Component: AppTextField,
       field: "repassword",
-      required: true,
       componentProps: {
         type: "password",
       },
+      rules: [
+        {
+          validator: (value, values) => {
+            return FormValidateUtil.matching(value, values.password);
+          },
+          message: "Repassword is not matching with password",
+        },
+      ],
     },
   },
 ];

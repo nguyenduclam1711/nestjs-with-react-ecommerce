@@ -25,7 +25,10 @@ const DynamicFormItem = (props: DynamicFormItemProps) => {
   };
 
   return (
-    <Box {...boxProps}>
+    <Box
+      {...boxProps}
+      flexGrow="1"
+    >
       <Flex mb="2" align="center" gap="1">
         <Text>
           {label}

@@ -33,7 +33,6 @@ const RegisterPage = () => {
       <DynamicForm
         values={formValues}
         onChange={setFormValues}
-        direction="vertical"
         items={formItems}
       />
       <Button loading={loading} size="3" className="w-full" mt="3" onClick={handleFetch}>

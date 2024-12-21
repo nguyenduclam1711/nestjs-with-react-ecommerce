@@ -1,4 +1,4 @@
-import { BoxProps } from "@radix-ui/themes";
+import { BoxProps, FlexProps } from "@radix-ui/themes";
 import { FC } from "react";
 
 export type DynamicFormContextType = {
@@ -19,9 +19,15 @@ export type DynamicFormItemProps = {
   required?: boolean;
 };
 
+export type DynamicFormItem = {
+  newRow?: boolean;
+  rowFlexProps?: FlexProps;
+  formItemProps: DynamicFormItemProps;
+};
+
 export type DynamicFormProps = {
-  items: DynamicFormItemProps[][];
+  items: DynamicFormItem[];
   values?: DynamicFormContextType["values"];
   onChange?: DynamicFormContextType["setValues"];
-  direction?: "horizontal" | "vertical";
+  defaultRowFlexProps?: FlexProps;
 };

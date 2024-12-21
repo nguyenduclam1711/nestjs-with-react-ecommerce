@@ -8,6 +8,8 @@ import {
 import { ZodError } from 'zod';
 import { get, set } from 'lodash';
 import { Prisma } from '@prisma/client';
+import { TokenUtil } from '../utils/token.util';
+import { REFRESH_TOKEN_FAIL_MESSAGE } from 'src/constants/jwt';
 
 @Catch()
 export class HttpExceptionsFilter implements ExceptionFilter {
@@ -19,13 +21,24 @@ export class HttpExceptionsFilter implements ExceptionFilter {
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.UNPROCESSABLE_ENTITY;
+    const message = this.getMessage(exception);
 
+    if (this.isRefreshTokenFailed(status, message)) {
+      TokenUtil.removeResponseRefreshTokenCookie(response);
+    }
     response.status(status).json({
       timestamp: new Date().toISOString(),
       path: request.url,
       error: this.getError(exception),
-      message: this.getMessage(exception),
+      message,
     });
+  }
+
+  private isRefreshTokenFailed(status: number, message: string) {
+    return (
+      status === HttpStatus.UNPROCESSABLE_ENTITY &&
+      message === REFRESH_TOKEN_FAIL_MESSAGE
+    );
   }
 
   private getMessage(exception: any) {

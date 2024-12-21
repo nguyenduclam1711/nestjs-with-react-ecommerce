@@ -19,6 +19,7 @@ import Redis from 'ioredis';
 import { UserRolesService } from '../user-roles/user-roles.service';
 import { ROLE_DEFAULT_CODE } from 'src/constants/role';
 import { JwtPayload } from 'src/schemas/jwt.schema';
+import { TokenUtil } from 'src/common/utils/token.util';
 
 @Injectable()
 export class AuthService {
@@ -127,11 +128,11 @@ export class AuthService {
         secret: REFRESH_TOKEN_SECRET_KEY,
       })
       .catch(() => {
-        throw new UnprocessableEntityException('Wrong refresh token');
+        TokenUtil.throwRefreshTokenFailsError();
       });
     const redisAccessToken = await this.getRedisAccessToken(refreshToken);
     if (!redisAccessToken) {
-      throw new UnprocessableEntityException('Refresh token has expired');
+      TokenUtil.throwRefreshTokenFailsError();
     }
     await this.deleteRedisRefreshToken(refreshToken);
     return this.generateTokens({

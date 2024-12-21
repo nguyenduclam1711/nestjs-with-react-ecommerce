@@ -4,7 +4,6 @@ import {
   Post,
   Request,
   Response,
-  UnprocessableEntityException,
   UsePipes,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -12,7 +11,6 @@ import { ZodValidationPipe } from 'src/common/pipes/zod-validation.pipe';
 import {
   AuthLoginBodyDto,
   authLoginBodySchema,
-  authRefreshBodySchema,
   AuthRegisterBodyDto,
   authRegisterBodySchema,
   AuthRegisterResponse,
@@ -23,10 +21,8 @@ import {
   Response as ExpressResponse,
   Request as ExpressRequest,
 } from 'express';
-import {
-  REFRESH_TOKEN_COOKIE_KEY,
-  REFRESH_TOKEN_EXPIRATION_IN_MILISECONDS,
-} from 'src/constants/jwt';
+import { REFRESH_TOKEN_COOKIE_KEY } from 'src/constants/jwt';
+import { TokenUtil } from 'src/common/utils/token.util';
 
 @Controller('auth')
 export class AuthController {
@@ -56,14 +52,7 @@ export class AuthController {
   }) {
     const { res, accessToken, refreshToken } = args;
 
-    const now = new Date().valueOf();
-    res.cookie(REFRESH_TOKEN_COOKIE_KEY, refreshToken, {
-      sameSite: 'strict',
-      httpOnly: true,
-      path: '/',
-      secure: true,
-      expires: new Date(now + REFRESH_TOKEN_EXPIRATION_IN_MILISECONDS),
-    });
+    TokenUtil.setResponseRefreshTokenCookie(res, refreshToken);
     res.status(200).json({
       accessToken,
     });
@@ -93,7 +82,6 @@ export class AuthController {
   }
 
   @Post('/refresh')
-  @UsePipes(new ZodValidationPipe(authRefreshBodySchema))
   @ApiOkResponse({
     type: JwtTokens,
   })
@@ -105,7 +93,7 @@ export class AuthController {
   ) {
     const cookieRefreshToken = req.cookies[REFRESH_TOKEN_COOKIE_KEY];
     if (!cookieRefreshToken) {
-      throw new UnprocessableEntityException('Wrong refresh token');
+      TokenUtil.throwRefreshTokenFailsError();
     }
     const { accessToken, refreshToken } =
       await this.authService.refreshAccessToken(cookieRefreshToken);

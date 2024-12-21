@@ -4,25 +4,19 @@ import { useDynamicFormContext, useOnChangeDynamicFormValue } from "./hooks";
 import { get } from "lodash";
 
 const DynamicFormItem = (props: DynamicFormItemProps) => {
-  const { label, Component, boxProps, field, componentProps, validateValue, validateErrorMessage = "Error", required } = props;
+  const { label, Component, boxProps, field, componentProps, required, rules } = props;
   const { values, errors } = useDynamicFormContext();
   const value = get(values, field);
   const fieldErrorConfig: undefined | {
     error: boolean;
     message: string;
   } = get(errors, field);
-  const onChangeDynamicFormValue = useOnChangeDynamicFormValue();
+  const onChangeDynamicFormValue = useOnChangeDynamicFormValue({
+    field,
+    rules,
+  });
   const isError = fieldErrorConfig?.error;
   const color = isError ? "red" : undefined;
-
-  const onChange = (value: any) => {
-    onChangeDynamicFormValue({
-      field,
-      value,
-      validateValue,
-      errorMesage: validateErrorMessage,
-    });
-  };
 
   return (
     <Box
@@ -39,7 +33,7 @@ const DynamicFormItem = (props: DynamicFormItemProps) => {
         {...{
           ...componentProps,
           value,
-          onChange,
+          onChange: onChangeDynamicFormValue,
           color,
         }}
       />

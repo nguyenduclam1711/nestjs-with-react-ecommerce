@@ -14,8 +14,12 @@ export type DynamicFormItemProps = {
   field: string[] | string;
   componentProps?: Record<string, any>;
   boxProps?: BoxProps;
-  validateValue?: (value: any) => boolean;
-  validateErrorMessage?: string;
+  rules?: Array<{
+    validator: {
+      validator: (value: any, values: DynamicFormContextType["values"]) => boolean;
+    }["validator"];
+    message: string;
+  }>;
   required?: boolean;
 };
 
